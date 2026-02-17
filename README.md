@@ -1,312 +1,184 @@
+<!doctype html>
 <html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard de Vendas Avançado 2.0</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"> 
-<style>
-:root {
-    --primary: #3b82f6;
-    --success: #10b981;
-    --danger: #ef4444;
-    --bg-dark: #0f172a;
-    --bg-light: #f1f5f9;
-    --card-dark: rgba(30,41,59,0.85);
-    --card-light: rgba(255,255,255,0.85);
-    --text-dark: #e2e8f0;
-    --text-light: #1e293b;
-    --shadow-dark: rgba(0,0,0,0.4);
-    --shadow-light: rgba(0,0,0,0.1);
-    --blur: blur(12px);
-}
-* {
-    margin: 0; padding: 0; box-sizing: border-box;
-}
-body {
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-    background: linear-gradient(135deg, var(--bg-dark), #1e293b);
-    color: var(--text-dark);
-    padding: 2rem;
-    transition: background 0.4s, color 0.4s;
-}
-body.light {
-    background: linear-gradient(135deg, var(--bg-light), #e2e8f0);
-    color: var(--text-light);
-}
-.dashboard-header {
-    display: flex; justify-content: space-between; align-items: center;
-    background: var(--card-dark);
-    backdrop-filter: var(--blur);
-    padding: 1rem 1.5rem;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px var(--shadow-dark);
-    margin-bottom: 2rem;
-    transition: background 0.4s, box-shadow 0.4s;
-}
-body.light .dashboard-header {
-    background: var(--card-light);
-    box-shadow: 0 4px 12px var(--shadow-light);
-}
-h1 {
-    font-size: 1.8rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.btn {
-    padding: 10px 16px;
-    border: none;
-    border-radius: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-.btn:hover { transform: scale(1.05); }
-.btn-primary { background: var(--primary); color: white; }
-.btn-success { background: var(--success); color: white; }
-.btn-danger { background: var(--danger); color: white; }
-.btn-icon {
-    background: none; border: 1px solid currentColor;
-    border-radius: 50%; width: 42px; height: 42px;
-    display: flex; align-items: center; justify-content: center;
-}
-.summary-cards {
-    display: grid; gap: 20px;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    margin-bottom: 2rem;
-}
-.card {
-    background: var(--card-dark);
-    backdrop-filter: var(--blur);
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px var(--shadow-dark);
-    transition: background 0.4s, transform 0.2s;
-}
-body.light .card {
-    background: var(--card-light);
-    box-shadow: 0 4px 12px var(--shadow-light);
-}
-.card:hover { transform: translateY(-4px); }
-.summary-value {
-    font-size: 2rem;
-    font-weight: bold;
-    margin-top: 8px;
-    color: var(--primary);
-}
-.content-grid {
-    display: grid;
-    gap: 20px;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-}
-.input-field {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.2);
-    background: rgba(15,23,42,0.5);
-    color: inherit;
-    margin-bottom: 12px;
-    transition: border 0.3s, background 0.3s;
-}
-body.light .input-field {
-    background: rgba(255,255,255,0.5);
-    border: 1px solid rgba(0,0,0,0.1);
-}
-.input-field:focus {
-    border-color: var(--primary);
-    outline: none;
-    box-shadow: 0 0 8px rgba(59,130,246,0.5);
-}
-.list-container {
-    list-style: none;
-    max-height: 200px;
-    overflow-y: auto;
-}
-.list-container li {
-    background: rgba(255,255,255,0.05);
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 6px;
-    display: flex;
-    justify-content: space-between;
-}
-.table-container {
-    overflow-x: auto;
-}
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-th, td {
-    padding: 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-th { text-align: left; }
-.chart-card { height: 350px; }
-</style>
-</head>
-<body>
-<header class="dashboard-header">
-    <h1><i class="fas fa-chart-line"></i> Dashboard Avançado</h1>
-    <div>
-        <button id="toggleTheme" class="btn btn-icon"><i class="fas fa-sun"></i></button>
-        <button id="exportCSV" class="btn btn-primary"><i class="fas fa-download"></i> CSV</button>
-    </div>
-</header>
-
-<main>
-    <section class="summary-cards">
-        <div class="card"><h3>Total de Vendas</h3><p id="totalSales" class="summary-value">R$ 0,00</p></div>
-        <div class="card"><h3>Usuários</h3><p id="totalUsers" class="summary-value">0</p></div>
-        <div class="card"><h3>Média por Venda</h3><p id="averageSale" class="summary-value">R$ 0,00</p></div>
-    </section>
-    <section class="content-grid">
-        <div class="card">
-            <h2><i class="fas fa-users-cog"></i> Usuários</h2>
-            <input type="text" id="userName" class="input-field" placeholder="Nome do usuário">
-            <button id="addUserBtn" class="btn btn-success">Adicionar</button>
-            <ul id="userList" class="list-container"></ul>
-        </div>
-        <div class="card">
-            <h2><i class="fas fa-cash-register"></i> Registrar Venda</h2>
-            <select id="userSelect" class="input-field"></select>
-            <input type="number" id="saleAmount" class="input-field" placeholder="Valor da venda (R$)">
-            <input type="date" id="saleDate" class="input-field">
-            <button id="addSaleBtn" class="btn btn-primary">Adicionar Venda</button>
-        </div>
-        <div class="card" style="grid-column:1/-1;">
-            <h2><i class="fas fa-table"></i> Vendas</h2>
-            <div class="table-container">
-                <table id="salesTable">
-                    <thead><tr><th>Usuário</th><th>Valor</th><th>Data</th><th>Ações</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-        <div class="card chart-card">
-            <h2><i class="fas fa-chart-bar"></i> Vendas por Data</h2>
-            <canvas id="salesChart"></canvas>
-        </div>
-        <div class="card chart-card">
-            <h2><i class="fas fa-chart-pie"></i> Vendas por Usuário</h2>
-            <canvas id="userPieChart"></canvas>
-        </div>
-    </section>
-</main>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-const state = {
-    users: JSON.parse(localStorage.getItem('users')) || [],
-    sales: JSON.parse(localStorage.getItem('sales')) || []
-};
-const DOM = {
-    totalSales: document.getElementById('totalSales'),
-    totalUsers: document.getElementById('totalUsers'),
-    averageSale: document.getElementById('averageSale'),
-    userName: document.getElementById('userName'),
-    addUserBtn: document.getElementById('addUserBtn'),
-    userList: document.getElementById('userList'),
-    userSelect: document.getElementById('userSelect'),
-    saleAmount: document.getElementById('saleAmount'),
-    saleDate: document.getElementById('saleDate'),
-    addSaleBtn: document.getElementById('addSaleBtn'),
-    salesTableBody: document.querySelector('#salesTable tbody'),
-    toggleTheme: document.getElementById('toggleTheme')
-};
-function save() {
-    localStorage.setItem('users', JSON.stringify(state.users));
-    localStorage.setItem('sales', JSON.stringify(state.sales));
-}
-function renderUsers() {
-    DOM.userSelect.innerHTML = '';
-    DOM.userList.innerHTML = '';
-    state.users.forEach((u,i)=>{
-        DOM.userSelect.innerHTML += `<option value="${i}">${u}</option>`;
-        DOM.userList.innerHTML += `<li>${u} <button onclick="deleteUser(${i})" class="btn btn-danger btn-sm">Excluir</button></li>`;
-    });
-    DOM.totalUsers.textContent = state.users.length;
-}
-function renderSales() {
-    DOM.salesTableBody.innerHTML = '';
-    let total = 0;
-    state.sales.forEach((s,i)=>{
-        total += s.value;
-        DOM.salesTableBody.innerHTML += `
-            <tr>
-                <td>${s.user}</td>
-                <td>R$ ${s.value.toFixed(2)}</td>
-                <td>${s.date}</td>
-                <td><button onclick="deleteSale(${i})" class="btn btn-danger btn-sm">Excluir</button></td>
-            </tr>`;
-    });
-    DOM.totalSales.textContent = `R$ ${total.toFixed(2)}`;
-    DOM.averageSale.textContent = `R$ ${(total/(state.sales.length||1)).toFixed(2)}`;
-    updateCharts();
-}
-function addUser() {
-    if(!DOM.userName.value.trim()) return;
-    state.users.push(DOM.userName.value.trim());
-    DOM.userName.value = '';
-    save();
-    renderUsers();
-}
-function addSale() {
-    if(DOM.userSelect.value==='' || !DOM.saleAmount.value) return;
-    const sale = {
-        user: state.users[DOM.userSelect.value],
-        value: parseFloat(DOM.saleAmount.value),
-        date: DOM.saleDate.value || new Date().toISOString().split('T')[0]
-    };
-    state.sales.push(sale);
-    DOM.saleAmount.value = '';
-    DOM.saleDate.value = '';
-    save();
-    renderSales();
-}
-function deleteUser(i) {
-    state.users.splice(i,1);
-    save();
-    renderUsers();
-    renderSales();
-}
-function deleteSale(i) {
-    state.sales.splice(i,1);
-    save();
-    renderSales();
-}
-let salesChart = new Chart(document.getElementById('salesChart'), {
-    type: 'line',
-    data: { labels: [], datasets: [{ label:'Vendas', data: [], borderColor: '#3b82f6', backgroundColor:'rgba(59,130,246,0.3)', fill:true }] },
-    options: { responsive:true }
-});
-let pieChart = new Chart(document.getElementById('userPieChart'), {
-    type: 'pie',
-    data: { labels: [], datasets: [{ data: [], backgroundColor:['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6'] }] }
-});
-function updateCharts() {
-    const byDate={}, byUser={};
-    state.sales.forEach(s=>{
-        byDate[s.date]=(byDate[s.date]||0)+s.value;
-        byUser[s.user]=(byUser[s.user]||0)+s.value;
-    });
-    salesChart.data.labels = Object.keys(byDate);
-    salesChart.data.datasets[0].data = Object.values(byDate);
-    pieChart.data.labels = Object.keys(byUser);
-    pieChart.data.datasets[0].data = Object.values(byUser);
-    salesChart.update(); pieChart.update();
-}
-DOM.addUserBtn.onclick = addUser;
-DOM.addSaleBtn.onclick = addSale;
-renderUsers();
-renderSales();
-DOM.toggleTheme.onclick = ()=>{
-    document.body.classList.toggle('light');
-    localStorage.setItem('theme', document.body.classList.contains('light')?'light':'dark');
-};
-if(localStorage.getItem('theme')==='light') document.body.classList.add('light');
-</script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Sistema de Gestão de Pessoas e Demandas - Corporativo" />
+    <title>Sistema de Gestão - Pessoas e Demandas</title>
+    <style>
+      /* ============================================== RESET E VARIÁVEIS ============================================== */
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      :root {
+        --bg-900: #020617; --bg-800: #0b1220; --surface: #0f172a; --surface-2: #1e293b;
+        --text-primary: #e6eef8; --text-secondary: #9aa6b3; --border: #22303f;
+        --primary: #2563eb; --primary-strong: #1e40af; --success: #16a34a;
+        --warning: #f59e0b; --danger: #ef4444; --radius: 8px;
+        --color-blue: #2563eb; --color-purple: #a855f7; --color-yellow: #facc15;
+        --color-green: #22c55e; --color-pink: #ec4899; --color-indigo: #6366f1;
+        --color-orange: #f97316; --color-red: #ef4444; --color-teal: #14b8a6; --color-cyan: #06b6d4;
+      }
+      html.light-mode { --bg-900: #f8fafc; --bg-800: #f1f5f9; --surface: #ffffff; --surface-2: #e2e8f0; --text-primary: #1e293b; --text-secondary: #475569; --border: #cbd5e1; }
+      /* ============================================== LAYOUT BASE ============================================== */
+      html, body { height: 100%; }
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: linear-gradient(135deg, var(--bg-900), var(--bg-800), var(--bg-900)); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+      /* ============================================== HEADER ============================================== */
+      header { background: linear-gradient(180deg, rgba(11, 18, 32, 0.7), rgba(11, 18, 32, 0.6)); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 40; }
+      .header-container { max-width: 1800px; margin: 0 auto; padding: 12px 16px; }
+      .header-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+      .header-title { display: flex; align-items: center; gap: 12px; }
+      .header-icon { padding: 6px; background: rgba(37, 99, 235, 0.12); border-radius: var(--radius); }
+      .header-icon svg { width: 20px; height: 20px; color: var(--primary); display: block; }
+      h1 { font-size: 1.125rem; font-weight: 700; color: var(--text-primary); }
+      .header-subtitle { font-size: 0.75rem; color: var(--text-secondary); }
+      .header-actions { display: flex; gap: 8px; align-items: center; }
+      button { padding: 6px 12px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.16s; display: inline-flex; align-items: center; gap: 6px; background: transparent; color: var(--text-primary); }
+      button:hover:not(:disabled) { border-color: var(--primary); background: rgba(37, 99, 235, 0.08); }
+      button:focus { outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+      button:disabled { opacity: 0.5; cursor: not-allowed; }
+      button svg { width: 14px; height: 14px; display: block; }
+      .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+      .stat-card { background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.03)); border: 1px solid rgba(255, 255, 255, 0.02); border-radius: var(--radius); padding: 12px; }
+      .stat-label { font-size: 10px; text-transform: uppercase; color: var(--text-secondary); font-weight: 600; margin-bottom: 6px; }
+      .stat-value { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); }
+      .stat-value.blue { color: var(--primary); }
+      .stat-value.green { color: var(--success); }
+      .stat-value.purple { color: var(--color-purple); }
+      .stat-value.yellow { color: var(--color-yellow); }
+      .filters { margin-top: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; display: none; }
+      .filters.active { display: block; }
+      .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+      .filter-group label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+      input, select { width: 100%; padding: 8px 12px; font-size: 0.95rem; background: transparent; border: 1px solid rgba(255, 255, 255, 0.04); border-radius: var(--radius); color: var(--text-primary); }
+      input::placeholder { color: var(--text-secondary); }
+      input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+      .export-buttons-container { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+      .export-buttons-container label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; }
+      .export-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+      .btn-export { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; font-size: 0.8rem; font-weight: 500; background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(37, 99, 235, 0.05)); border: 1px solid rgba(37, 99, 235, 0.3); border-radius: var(--radius); color: var(--primary); cursor: pointer; transition: all 0.2s ease; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+      .btn-export:hover:not(:disabled) { background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(37, 99, 235, 0.12)); border-color: var(--primary); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15); transform: translateY(-2px); }
+      .btn-export:active { transform: translateY(0); }
+      .btn-export svg { width: 16px; height: 16px; flex-shrink: 0; }
+      @media (max-width: 640px) { .export-buttons { grid-template-columns: repeat(2, 1fr); } }
+      @media (max-width: 420px) { .export-buttons { grid-template-columns: 1fr; } .btn-export { font-size: 0.75rem; padding: 6px 10px; } }
+      /* ============================================== MAIN CONTENT ============================================== */
+      main { max-width: 1800px; margin: 0 auto; padding: 16px; min-height: calc(100vh - 200px); }
+      .people-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      @media (min-width: 640px) { .people-grid { grid-template-columns: repeat(3, 1fr); } }
+      @media (min-width: 768px) { .people-grid { grid-template-columns: repeat(4, 1fr); } }
+      @media (min-width: 1024px) { .people-grid { grid-template-columns: repeat(5, 1fr); } }
+      .person-card { background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.03)); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; transition: all 0.2s; }
+      .person-card:hover { border-color: var(--primary); background: linear-gradient(180deg, rgba(37, 99, 235, 0.05), rgba(37, 99, 235, 0.02)); }
+      .person-header { display: flex; gap: 12px; margin-bottom: 12px; }
+      .person-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--color-purple)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; flex-shrink: 0; }
+      .person-info h3 { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+      .person-info p { font-size: 0.75rem; color: var(--text-secondary); }
+      .demands-section { margin-top: 12px; }
+      .demands-title { font-size: 0.75rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 6px; }
+      .demands-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+      .demand-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; padding: 4px 0; }
+      .demand-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+      .btn-assign { width: 100%; padding: 8px; background: rgba(37, 99, 235, 0.1); color: var(--primary); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: var(--radius); font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+      .btn-assign:hover { background: rgba(37, 99, 235, 0.15); border-color: var(--primary); }
+      .empty-state { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; text-align: center; grid-column: 1 / -1; }
+      .empty-state svg { width: 40px; height: 40px; color: var(--text-secondary); margin: 0 auto 8px; display: block; }
+      .empty-state p { color: var(--text-secondary); font-size: 0.95rem; }
+      /* ============================================== MODAL ============================================== */
+      .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); display: none; align-items: center; justify-content: center; z-index: 90; padding: 20px; }
+      .modal-overlay.active { display: flex; }
+      .modal { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 500px; max-height: calc(100vh - 40px); overflow-y: auto; box-shadow: 0 20px 25px rgba(0, 0, 0, 0.3); }
+      .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); }
+      .modal-person { display: flex; gap: 12px; align-items: center; }
+      .modal-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--color-purple)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; }
+      .modal-name { font-weight: 600; color: var(--text-primary); }
+      .modal-count { font-size: 0.85rem; color: var(--text-secondary); }
+      .modal-close { width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; }
+      .modal-section { padding: 16px; }
+      .modal-section-title { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 12px; }
+      .available-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; margin-bottom: 8px; }
+      .available-item { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: 6px; padding: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.14s; font-size: 0.9rem; }
+      .available-item:hover:not(:disabled) { background: rgba(255, 255, 255, 0.04); border-color: rgba(37, 99, 235, 0.3); }
+      .available-item:disabled { opacity: 0.5; cursor: not-allowed; }
+      .assigned-badge { font-size: 11px; color: var(--success); font-weight: 700; margin-left: auto; }
+      .btn-close-modal { width: 100%; padding: 10px 16px; background: var(--primary); color: white; border: none; border-radius: var(--radius); font-size: 0.95rem; font-weight: 600; cursor: pointer; margin-top: 16px; }
+      .btn-close-modal:hover { background: var(--primary-strong); }
+      /* Demand Colors */
+      .bg-blue { background-color: var(--color-blue); } .bg-purple { background-color: var(--color-purple); } .bg-yellow { background-color: var(--color-yellow); } .bg-green { background-color: var(--color-green); } .bg-pink { background-color: var(--color-pink); } .bg-indigo { background-color: var(--color-indigo); } .bg-orange { background-color: var(--color-orange); } .bg-red { background-color: var(--color-red); } .bg-teal { background-color: var(--color-teal); } .bg-cyan { background-color: var(--color-cyan); }
+      /* ============================================== TOAST NOTIFICATIONS ============================================== */
+      .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-primary); font-size: 0.95rem; z-index: 100; animation: slideIn 0.3s ease; max-width: 300px; }
+      .toast.success { border-color: rgba(22, 163, 74, 0.3); background: rgba(22, 163, 74, 0.08); color: var(--success); }
+      .toast.error { border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.08); color: var(--danger); }
+      @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+      /* ============================================== INTERNAL OBSERVATIONS ============================================== */
+      .internal-observations-section { margin-top: 32px; padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+      .observations-title { font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+      .observations-container { display: grid; grid-template-columns: 1fr; gap: 16px; }
+      .agent-observation { padding: 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); display: grid; grid-template-columns: 200px 1fr auto; gap: 12px; align-items: stretch; }
+      .agent-observation-select { display: flex; flex-direction: column; }
+      .agent-observation-select label { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; }
+      .agent-observation-select select { flex: 1; padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-primary); font-size: 0.95rem; }
+      .agent-observation-textarea { display: flex; flex-direction: column; }
+      .agent-observation-textarea label { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; }
+      .agent-observation-textarea textarea { flex: 1; padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-primary); font-size: 0.95rem; font-family: inherit; resize: none; }
+      .agent-observation-actions { display: flex; gap: 8px; align-items: flex-end; }
+      .btn-add-observation { margin-top: 16px; padding: 10px 16px; background: var(--primary); border: 1px solid var(--primary); color: white; font-weight: 600; border-radius: var(--radius); cursor: pointer; }
+      .btn-add-observation:hover { background: var(--primary-strong); border-color: var(--primary-strong); }
+      /* ============================================== WEEKEND SCHEDULE ============================================== */
+      .weekend-schedule-section { margin-top: 32px; padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+      .schedule-title { font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; }
+      .schedule-day-title { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin: 20px 0 12px 0; display: flex; align-items: center; gap: 8px; }
+      .schedule-day-title::before { content: "📅"; font-size: 1.25rem; }
+      .schedule-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+      .schedule-table thead { background: var(--primary); color: white; }
+      .schedule-table th { padding: 12px; text-align: center; font-weight: 600; font-size: 0.9rem; border-right: 1px solid var(--border); }
+      .schedule-table td { padding: 12px; border: 1px solid var(--border); text-align: center; font-size: 0.95rem; }
+      .schedule-table tbody tr:nth-child(odd) { background: var(--surface-2); }
+      .schedule-time { font-weight: 600; color: var(--text-primary); min-width: 80px; background: rgba(37, 99, 235, 0.1); }
+      .schedule-agent-select { padding: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--text-primary); font-size: 0.9rem; min-width: 140px; }
+      .schedule-label { font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 4px; display: block; }
+      /* ============================================== OFF / VACATION SECTION ============================================== */
+      .off-schedule-section { margin-top: 32px; padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+      .off-schedule-title { font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+      .off-schedule-grid { display: flex; flex-direction: column; gap: 8px; }
+      .off-agent-card { padding: 10px 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); display: grid; grid-template-columns: 200px 1fr; gap: 12px; align-items: center; }
+      .off-agent-name { font-weight: 600; color: var(--text-primary); font-size: 0.95rem; word-break: break-word; }
+      .off-agent-status { display: flex; gap: 6px; flex-wrap: nowrap; justify-content: flex-start; }
+      .off-status-btn { flex: 0 1 auto; min-width: auto; padding: 6px 12px; font-size: 0.8rem; font-weight: 600; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text-primary); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+      .off-status-btn:hover { border-color: var(--primary); background: rgba(37, 99, 235, 0.08); }
+      .off-status-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+      .off-status-btn.folga.active { background: var(--warning); border-color: var(--warning); }
+      .off-status-btn.vacation.active { background: var(--danger); border-color: var(--danger); }
+      .off-empty-state { grid-column: 1 / -1; padding: 32px; text-align: center; color: var(--text-secondary); font-size: 0.95rem; }
+      /* ============================================== MONTH WEEKENDS SCHEDULES ============================================== */
+      .month-weekends-section { margin-top: 32px; padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+      .month-weekends-title { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+      .month-weekends-header { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+      .btn-generate-schedules { padding: 10px 16px; background: var(--primary); border: 1px solid var(--primary); color: white; font-weight: 600; border-radius: var(--radius); cursor: pointer; transition: all 0.2s; }
+      .btn-generate-schedules:hover { background: var(--primary-strong); border-color: var(--primary-strong); }
+      .month-weekends-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 20px; margin-bottom: 20px; }
+      @media (max-width: 1200px) { .month-weekends-grid { grid-template-columns: 1fr; } }
+      .weekend-panel { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+      .weekend-panel-header { background: linear-gradient(135deg, var(--primary), var(--primary-strong)); color: white; padding: 14px 16px; font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+      .weekend-panel-content { padding: 16px; max-height: 600px; overflow-y: auto; }
+      .weekend-day-section { margin-bottom: 16px; }
+      .weekend-day-label { font-weight: 700; color: var(--text-primary); font-size: 0.95rem; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+      .weekend-shift-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; font-size: 0.9rem; }
+      .weekend-shift-label { min-width: 70px; color: var(--text-secondary); font-size: 0.85rem; font-weight: 500; }
+      .weekend-agent-select { flex: 1; padding: 6px 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--text-primary); font-size: 0.9rem; cursor: pointer; }
+      .month-schedule-day-section { margin-bottom: 16px; }
+      .month-schedule-day-title { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px; }
+      .month-schedule-day-title::before { content: "📅"; font-size: 1rem; }
+      .month-schedule-day-section .schedule-table { width: 100%; border-collapse: collapse; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 0; }
+      .month-schedule-day-section .schedule-table thead { background: var(--primary); color: white; }
+      .month-schedule-day-section .schedule-table th { padding: 10px 8px; text-align: center; font-weight: 600; font-size: 0.85rem; border-right: 1px solid var(--border); }
+      .month-schedule-day-section .schedule-table td { padding: 10px 8px; border: 1px solid var(--border); text-align: center; font-size: 0.9rem; }
+      .month-schedule-day-section .schedule-table .schedule-time { font-weight: 600; color: var(--text-primary); min-width: 70px; background: rgba(37, 99, 235, 0.1); }
+      .month-schedule-agent-select { padding: 6px 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--text-primary); font-size: 0.9rem; cursor: pointer; min-width: 120px; width: 100%; }
+      .month-off-schedule { margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--border); }
+      .month-off-schedule-title { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+      .month-off-schedule-grid { display: flex; flex-direction: column; gap: 8px; }
+      .theme-toggle-btn { padding: 8px 12px; border-radius: var(--radius); border: 1px solid var(--border); }
+    </style>
+  </head>
+  <body>
+    </body>
 </html>
